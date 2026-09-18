@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us | CalAdvoc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand" aria-label="CalAdvoc logo">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="pillar left"></span>
+            <span class="pillar center"></span>
+            <span class="pillar right"></span>
+            <span class="roof"></span>
+            <span class="base"></span>
+          </div>
+          <div class="brand-copy">
+            <div class="brand-name">CalAdvoc</div>
+            <div class="brand-tag">LAW ADVOCACY MANAGEMENT</div>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="about.html" class="nav-link">About Us</a>
+          <a href="features.html" class="nav-link">Features</a>
+          <a href="contact.html" class="nav-link active">Contact Us</a>
+        </nav>
+
+        <div class="header-actions">
+          <a href="account.html?mode=subscription" class="btn btn-ghost">Subscription</a>
+          <button class="btn btn-primary">Free Start</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-hero page-hero-contact">
+        <div class="container page-hero-inner">
+          <div class="eyebrow">CONTACT US</div>
+          <h1>Speak with the CalAdvoc team</h1>
+        </div>
+      </section>
+
+      <section class="info-section">
+        <div class="container contact-inner">
+          <div class="contact-copy">
+            <p>
+              Need a better way to run your legal operations? Our team can walk you through the platform,
+              answer questions, and help you choose the right setup for your firm.
+            </p>
+
+            <div class="contact-list">
+              <div class="contact-item">
+                <span class="contact-label">Phone</span>
+                <a href="tel:+254783542805">+254 783 542 805</a>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email</span>
+                <a href="mailto:willcalebochie@gmail.com">willcalebochie@gmail.com</a>
+              </div>
+            </div>
+          </div>
+
+          <form id="contactForm" class="contact-form">
+            <div class="field-row">
+              <label>
+                Name
+                <input type="text" name="name" placeholder="Your name" required />
+              </label>
+              <label>
+                Email
+                <input type="email" name="email" placeholder="Your email" required />
+              </label>
+            </div>
+
+            <label>
+              Subject
+              <input type="text" name="subject" placeholder="How can we help?" required />
+            </label>
+
+            <label>
+              Message
+              <textarea name="message" rows="5" placeholder="Tell us about your firm and what you need." required></textarea>
+            </label>
+
+            <button type="submit" class="btn btn-primary btn-large">Send Message</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById('contactForm');
+
+      if (form) {
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(form);
+          const name = (formData.get('name') || '').toString().trim();
+          const email = (formData.get('email') || '').toString().trim();
+          const subject = (formData.get('subject') || '').toString().trim();
+          const message = (formData.get('message') || '').toString().trim();
+
+          const emailSubject = encodeURIComponent(subject || 'New CalAdvoc inquiry');
+          const emailBody = encodeURIComponent(
+            `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+          );
+
+          const mailtoLink = `mailto:willcalebochie@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+          const whatsappLink = `https://wa.me/254783542805?text=${encodeURIComponent(
+            `Hello CalAdvoc, my name is ${name}.\nEmail: ${email}\nSubject: ${subject}\n\n${message}`
+          )}`;
+
+          window.location.href = mailtoLink;
+          setTimeout(() => {
+            window.open(whatsappLink, '_blank');
+          }, 250);
+
+          form.reset();
+        });
+      }
+    </script>
+  </body>
+</html>

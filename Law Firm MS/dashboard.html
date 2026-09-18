@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | CalAdvoc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div class="dashboard-shell">
+      <div class="dashboard-layout">
+        <aside class="dashboard-sidebar">
+          <div class="sidebar-brand">
+            <h2>CalAdvoc</h2>
+            <small>LAW FIRM SYSTEM</small>
+          </div>
+
+          <nav class="sidebar-nav" aria-label="Dashboard navigation">
+            <a href="index.html"><span class="sidebar-badge">H</span> Home</a>
+            <a href="#" class="active"><span class="sidebar-badge">D</span> Dashboard</a>
+            <a href="#"><span class="sidebar-badge">C</span> Case Files</a>
+            <a href="#"><span class="sidebar-badge">R</span> Client Register</a>
+            <a href="#"><span class="sidebar-badge">A</span> Court Attendance</a>
+            <a href="#"><span class="sidebar-badge">I</span> Income</a>
+            <a href="#"><span class="sidebar-badge">E</span> Expenses</a>
+            <a href="#"><span class="sidebar-badge">V</span> Invoices</a>
+            <a href="#"><span class="sidebar-badge">D</span> Debtors</a>
+            <a href="#"><span class="sidebar-badge">C</span> Creditors</a>
+            <a href="#"><span class="sidebar-badge">B</span> Budget</a>
+            <a href="#"><span class="sidebar-badge">R</span> Reports</a>
+            <a href="#"><span class="sidebar-badge">F</span> Firm Settings</a>
+            <a href="#"><span class="sidebar-badge">U</span> User Management</a>
+          </nav>
+        </aside>
+
+        <main class="dashboard-main">
+          <div class="topbar">
+            <h1>The Law Firm's Management System</h1>
+
+            <div class="topbar-meta">
+              <div class="user-pill">W</div>
+              <span id="userWelcomeLabel" class="user-label">Welcome, User</span>
+            </div>
+          </div>
+
+          <section class="dashboard-grid" aria-label="overview metrics">
+            <article class="metric-card">
+              <small>Active Cases</small>
+              <strong>184</strong>
+              <span>+12 this month</span>
+            </article>
+
+            <article class="metric-card">
+              <small>Clients</small>
+              <strong>276</strong>
+              <span>+9 new clients</span>
+            </article>
+
+            <article class="metric-card">
+              <small>Income</small>
+              <strong>KSh 2.4M</strong>
+              <span>Quarterly total</span>
+            </article>
+
+            <article class="metric-card">
+              <small>Expenses</small>
+              <strong>KSh 860K</strong>
+              <span>Below budget</span>
+            </article>
+          </section>
+
+          <section class="content-grid">
+            <div class="panel">
+              <h3>Recent Case Files</h3>
+              <table class="table-list">
+                <thead>
+                  <tr>
+                    <th>Case</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>CM-2048</td>
+                    <td>Jane Njeri</td>
+                    <td><span class="status good">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td>CM-2051</td>
+                    <td>Peter Mwangi</td>
+                    <td><span class="status warn">Pending</span></td>
+                  </tr>
+                  <tr>
+                    <td>CM-2054</td>
+                    <td>Ann Wanjiku</td>
+                    <td><span class="status alert">Review</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>Firm Settings</h3>
+              <form class="form-stack">
+                <div class="form-row">
+                  <label>
+                    Firm Name
+                    <input id="firmNameInput" type="text" value="CalAdvoc Legal" />
+                  </label>
+                  <label>
+                    Contact Phone
+                    <input id="firmPhoneInput" type="tel" value="+254 783 542 805" />
+                  </label>
+                </div>
+
+                <label>
+                  Email
+                  <input id="firmEmailInput" type="email" value="willcalebochie@gmail.com" />
+                </label>
+
+                <label>
+                  Office Address
+                  <textarea id="firmAddressInput">25 Justice Avenue, Suite 400, New York, NY</textarea>
+                </label>
+
+                <button type="submit" class="btn btn-primary">Save Firm Settings</button>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="supabase-config.js?v=2"></script>
+    <script>
+      async function ensureAuthenticatedDashboard() {
+        if (!window.calAdvocSupabase || !window.calAdvocSupabase.auth) {
+          window.location.href = 'account.html';
+          return null;
+        }
+
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const user = sessionData?.session?.user;
+
+        if (!user) {
+          window.location.href = 'account.html';
+          return null;
+        }
+
+        const profileResult = await getCurrentUserProfile();
+
+        if (!profileResult.ok || !profileResult.data) {
+          window.location.href = 'account.html';
+          return null;
+        }
+
+        const profile = profileResult.data;
+
+        if (isTrialExpired(profile)) {
+          alert('Your free trial has expired. Please create a full account to continue using CalAdvoc.');
+          await supabaseClient.auth.signOut();
+          window.location.href = 'account.html';
+          return null;
+        }
+
+        const userLabel = document.getElementById('userWelcomeLabel');
+        if (userLabel) {
+          const fullName = profile.full_name || user.user_metadata?.full_name || 'User';
+          userLabel.textContent = `Welcome, ${fullName}`;
+        }
+
+        const firmNameInput = document.getElementById('firmNameInput');
+        if (firmNameInput) {
+          firmNameInput.value = profile.firm_name || 'CalAdvoc Legal';
+        }
+
+        const firmEmailInput = document.getElementById('firmEmailInput');
+        if (firmEmailInput) {
+          firmEmailInput.value = profile.email || user.email || 'admin@firm.com';
+        }
+
+        return profile;
+      }
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        const profile = await ensureAuthenticatedDashboard();
+
+        if (!profile) {
+          return;
+        }
+
+        const firmForm = document.querySelector('.form-stack');
+        if (firmForm) {
+          firmForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const firmName = document.getElementById('firmNameInput')?.value || profile.firm_name || 'CalAdvoc Legal';
+            const email = document.getElementById('firmEmailInput')?.value || profile.email || '';
+
+            const result = await saveProfile({
+              full_name: profile.full_name || '',
+              firm_name: firmName,
+              email,
+              account_type: profile.account_type || 'trial',
+              trial_expires_at: profile.trial_expires_at || null,
+            });
+
+            if (result.ok) {
+              alert('Firm settings saved successfully.');
+            } else {
+              alert(result.error?.message || 'Unable to save firm settings right now.');
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account | CalAdvoc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand" aria-label="CalAdvoc logo">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="pillar left"></span>
+            <span class="pillar center"></span>
+            <span class="pillar right"></span>
+            <span class="roof"></span>
+            <span class="base"></span>
+          </div>
+          <div class="brand-copy">
+            <div class="brand-name">CalAdvoc</div>
+            <div class="brand-tag">LAW ADVOCACY MANAGEMENT</div>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="about.html" class="nav-link">About Us</a>
+          <a href="features.html" class="nav-link">Features</a>
+          <a href="contact.html" class="nav-link">Contact Us</a>
+        </nav>
+
+        <div class="header-actions">
+          <a href="account.html?mode=subscription" class="btn btn-ghost">Subscription</a>
+          <a href="account.html" class="btn btn-primary">Free Start</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-page">
+      <div class="auth-shell">
+        <div class="auth-layout">
+          <div class="auth-visual">
+            <div class="eyebrow">WELCOME</div>
+            <h1>Manage your legal practice with confidence.</h1>
+            <p>
+              Sign in or create your account to access case tracking, client records,
+              financial reporting, and secure team workflow tools built for modern law firms.
+            </p>
+
+            <ul class="auth-list">
+              <li>Case and matter management</li>
+              <li>Client and staff records</li>
+              <li>Billing, reports, and insights</li>
+            </ul>
+          </div>
+
+          <div class="auth-forms">
+            <section id="subscriptionPanel" class="subscription-panel" hidden>
+              <div class="eyebrow">SUBSCRIPTION</div>
+              <h2>Continue with CalAdvoc</h2>
+              <p>Enter the M-Pesa number you would like to use for your subscription payment.</p>
+              <form id="subscriptionForm" class="auth-form">
+                <label>
+                  M-Pesa Number
+                  <input id="mpesaNumber" type="tel" inputmode="numeric" autocomplete="tel" placeholder="07XX XXX XXX" pattern="^(?:0|\+?254)7\d{8}$" required />
+                </label>
+                <button type="submit" class="btn btn-primary btn-large">Continue to Payment</button>
+                <div id="subscriptionMessage" class="auth-meta" role="status"></div>
+              </form>
+              <a href="account.html" class="auth-meta subscription-back-link">Back to account access</a>
+            </section>
+
+            <div id="trialBanner" class="auth-trial-banner" style="display:none; margin-bottom: 18px; padding: 12px 14px; border-radius: 12px; background: rgba(229, 189, 120, 0.18); border: 1px solid rgba(229, 189, 120, 0.45); color: #2f0f0d; font-weight: 700;">
+              Free trial active: your account will expire in 3 days.
+            </div>
+            <div class="auth-tabs">
+              <button class="auth-tab active" type="button">Sign In</button>
+              <button class="auth-tab" type="button">Create Account</button>
+            </div>
+
+            <div class="auth-panel active">
+              <form id="signInForm" class="auth-form">
+                <label>
+                  Email Address
+                  <input id="signInEmail" type="email" placeholder="you@example.com" required />
+                </label>
+
+                <label>
+                  Password
+                  <span class="password-field">
+                    <input id="signInPassword" type="password" placeholder="Enter your password" required />
+                    <span class="password-toggle-row">
+                      <input id="showSignInPassword" type="checkbox" data-password-target="signInPassword" />
+                      <span>Show password</span>
+                    </span>
+                  </span>
+                </label>
+
+                <button type="submit" class="btn btn-primary btn-large">Sign In</button>
+                <div class="auth-meta">New here? <a href="#" class="switch-tab" data-tab="create">Create an account</a></div>
+              </form>
+            </div>
+
+            <div class="auth-panel create-account-panel">
+              <form id="signUpForm" class="auth-form">
+                <label>
+                  Full Name
+                  <input id="signUpName" type="text" placeholder="Your full name" required />
+                </label>
+
+                <label>
+                  Firm Name
+                  <input id="signUpFirmName" type="text" placeholder="Your firm name" required />
+                </label>
+
+                <label>
+                  Email Address
+                  <input id="signUpEmail" type="email" placeholder="you@example.com" required />
+                </label>
+
+                <label>
+                  Password
+                  <span class="password-field">
+                    <input id="signUpPassword" type="password" placeholder="Create a password" required />
+                    <span class="password-toggle-row">
+                      <input id="showSignUpPassword" type="checkbox" data-password-target="signUpPassword" />
+                      <span>Show password</span>
+                    </span>
+                  </span>
+                </label>
+
+                <button type="submit" class="btn btn-primary btn-large">Create Account</button>
+                <div class="auth-meta">Already have an account? <a href="#" class="switch-tab" data-tab="signin">Sign in</a></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="supabase-config.js?v=2"></script>
+    <script>
+      async function redirectIfSignedIn() {
+        if (!window.calAdvocSupabase || !window.calAdvocSupabase.auth) {
+          return false;
+        }
+
+        const { data } = await supabaseClient.auth.getSession();
+
+        if (data?.session) {
+          window.location.href = 'dashboard.html';
+          return true;
+        }
+
+        return false;
+      }
+
+      const tabs = document.querySelectorAll('.auth-tab');
+      const panels = document.querySelectorAll('.auth-panel');
+      const switchTabs = document.querySelectorAll('.switch-tab');
+      const trialBanner = document.getElementById('trialBanner');
+      const subscriptionPanel = document.getElementById('subscriptionPanel');
+      const subscriptionForm = document.getElementById('subscriptionForm');
+      const subscriptionMessage = document.getElementById('subscriptionMessage');
+      const params = new URLSearchParams(window.location.search);
+      const isTrialFlow = params.get('trial') === 'true';
+      const isSubscriptionFlow = params.get('mode') === 'subscription';
+
+      if (isSubscriptionFlow) {
+        subscriptionPanel.hidden = false;
+        document.querySelector('.auth-forms').classList.add('subscription-mode');
+      } else {
+        redirectIfSignedIn();
+      }
+
+      subscriptionForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const number = document.getElementById('mpesaNumber').value.trim();
+        subscriptionMessage.textContent = `M-Pesa number ${number} received. Payment setup will continue after account sign-in.`;
+      });
+
+      if (isTrialFlow) {
+        const createTabIndex = 1;
+        tabs.forEach((item) => item.classList.remove('active'));
+        panels.forEach((panel) => panel.classList.remove('active'));
+        tabs[createTabIndex].classList.add('active');
+        panels[createTabIndex].classList.add('active');
+        if (trialBanner) {
+          trialBanner.style.display = 'block';
+        }
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach((item) => item.classList.remove('active'));
+          panels.forEach((panel) => panel.classList.remove('active'));
+
+          tab.classList.add('active');
+          panels[index].classList.add('active');
+        });
+      });
+
+      switchTabs.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          const nextTab = link.dataset.tab === 'create' ? 1 : 0;
+          tabs.forEach((item) => item.classList.remove('active'));
+          panels.forEach((panel) => panel.classList.remove('active'));
+          tabs[nextTab].classList.add('active');
+          panels[nextTab].classList.add('active');
+        });
+      });
+
+      const signUpForm = document.getElementById('signUpForm');
+      const signInForm = document.getElementById('signInForm');
+
+      document.querySelectorAll('[data-password-target]').forEach((toggle) => {
+        toggle.addEventListener('change', () => {
+          const passwordInput = document.getElementById(toggle.dataset.passwordTarget);
+          const label = toggle.nextElementSibling;
+
+          if (!passwordInput) {
+            return;
+          }
+
+          passwordInput.type = toggle.checked ? 'text' : 'password';
+          toggle.setAttribute('aria-label', toggle.checked ? 'Hide password' : 'Show password');
+          if (label) {
+            label.textContent = toggle.checked ? 'Hide password' : 'Show password';
+          }
+        });
+      });
+
+      signUpForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!supabaseClient || !supabaseClient.auth) {
+          alert('Supabase auth is unavailable right now. Please check your internet connection and try again.');
+          return;
+        }
+
+        const fullName = document.getElementById('signUpName').value.trim();
+        const firmName = document.getElementById('signUpFirmName').value.trim();
+        const email = document.getElementById('signUpEmail').value.trim();
+        const password = document.getElementById('signUpPassword').value;
+        const trialExpiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        const isTrial = params.get('trial') === 'true';
+
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              firm_name: firmName,
+              account_type: isTrial ? 'trial' : 'standard',
+              trial_expires_at: isTrial ? trialExpiry : null,
+            },
+          },
+        });
+
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        if (data.user && data.session) {
+          const profileResult = await saveProfile({
+            full_name: fullName,
+            firm_name: firmName,
+            email,
+            account_type: isTrial ? 'trial' : 'standard',
+            trial_expires_at: isTrial ? trialExpiry : null,
+          });
+
+          if (!profileResult.ok) {
+            alert(profileResult.error?.message || 'Your account was created, but your profile could not be saved. Please try signing in again.');
+            return;
+          }
+
+          alert(isTrial
+            ? 'Your free 3-day trial account has been created successfully.'
+            : 'Account created successfully.');
+          signUpForm.reset();
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        if (data.user && !data.session) {
+          alert('Your account was created. Please verify your email, then sign in to open the dashboard.');
+        }
+      });
+
+      signInForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!supabaseClient || !supabaseClient.auth) {
+          alert('Supabase auth is unavailable right now. Please check your internet connection and try again.');
+          return;
+        }
+
+        const email = document.getElementById('signInEmail').value.trim();
+        const password = document.getElementById('signInPassword').value;
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        const profileResult = await saveProfile({
+          full_name: data.user?.user_metadata?.full_name || '',
+          firm_name: data.user?.user_metadata?.firm_name || '',
+          email: data.user?.email || email,
+          account_type: data.user?.user_metadata?.account_type || 'trial',
+          trial_expires_at: data.user?.user_metadata?.trial_expires_at || null,
+        });
+
+        if (!profileResult.ok) {
+          console.error(profileResult.error);
+        }
+
+        alert('Signed in successfully.');
+        signInForm.reset();
+        window.location.href = 'dashboard.html';
+      });
+    </script>
+  </body>
+</html>
