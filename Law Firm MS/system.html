@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System | CalAdvoc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="system.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div class="sys-shell">
+      <aside class="sys-sidebar">
+        <div class="sys-brand">
+          <div class="geometric-strip"></div>
+          <h2>CalAdvoc</h2>
+          <small id="sysFirmName">FIRM SYSTEM</small>
+        </div>
+        <nav class="sys-nav" aria-label="System navigation">
+          <button type="button" data-sec="overview" class="active">Overview</button>
+          <button type="button" data-sec="cases">Case Files</button>
+          <button type="button" data-sec="clients">Client Register</button>
+          <button type="button" data-sec="court">Court Attendance</button>
+          <button type="button" data-sec="income">Income</button>
+          <button type="button" data-sec="expenses">Expenses</button>
+          <button type="button" data-sec="invoices">Invoices</button>
+          <button type="button" data-sec="debtors">Debtors</button>
+          <button type="button" data-sec="creditors">Creditors</button>
+          <button type="button" data-sec="budget">Budget Tracker</button>
+          <button type="button" data-sec="reports">Reports</button>
+          <button type="button" data-sec="settings">Firm Settings</button>
+        </nav>
+        <div class="sys-sidebar-foot">
+          <span id="sysUserName">User</span>
+          <button type="button" id="sysSignOut" class="sys-btn ghost small">Sign Out</button>
+        </div>
+      </aside>
+
+      <main class="sys-main">
+        <div class="sys-topbar">
+          <h1 id="sysSectionTitle">Overview</h1>
+          <span class="sys-mode-badge" id="sysStorageBadge"></span>
+        </div>
+
+        <section id="sec-overview" class="sys-section active">
+          <div class="sys-cards" id="overviewCards"></div>
+          <div class="sys-panel">
+            <h3>Recent Case Files</h3>
+            <div id="overviewRecent"></div>
+          </div>
+        </section>
+
+        <section id="sec-cases" class="sys-section">
+          <div class="sys-section-head">
+            <input id="caseSearch" class="sys-input" type="search" placeholder="Search file number, client, title…" />
+            <button type="button" id="btnNewCase" class="sys-btn primary">＋ New Case File</button>
+          </div>
+          <div class="sys-panel"><div id="caseFilesTable"></div></div>
+        </section>
+
+        <section id="sec-clients" class="sys-section">
+          <div class="sys-section-head">
+            <input id="clientSearch" class="sys-input" type="search" placeholder="Search clients…" />
+            <button type="button" id="btnNewClient" class="sys-btn primary">＋ New Client</button>
+          </div>
+          <div class="sys-panel"><div id="clientsTable"></div></div>
+        </section>
+
+        <section id="sec-court" class="sys-section">
+          <div class="sys-section-head">
+            <select id="courtCaseSelect" class="sys-input"></select>
+            <button type="button" id="btnLogSession" class="sys-btn primary">＋ Log Session</button>
+            <button type="button" id="btnExportLog" class="sys-btn ghost">Export Full Log</button>
+          </div>
+          <div class="sys-panel"><div id="courtSessionsTable"></div></div>
+          <datalist id="courtNamesList"></datalist>
+          <datalist id="judgeNamesList"></datalist>
+        </section>
+
+        <section id="sec-income" class="sys-section">
+          <div class="sys-section-head">
+            <button type="button" id="btnNewIncome" class="sys-btn primary">＋ Record Income</button>
+          </div>
+          <div class="sys-panel"><div id="incomeTable"></div></div>
+        </section>
+
+        <section id="sec-expenses" class="sys-section">
+          <div class="sys-section-head">
+            <button type="button" id="btnNewExpense" class="sys-btn primary">＋ Log Expense</button>
+          </div>
+          <div class="sys-panel"><div id="expensesTable"></div></div>
+        </section>
+
+        <section id="sec-invoices" class="sys-section">
+          <div class="sys-section-head">
+            <button type="button" id="btnNewInvoice" class="sys-btn primary">＋ New Invoice</button>
+          </div>
+          <div class="sys-panel"><div id="invoicesTable"></div></div>
+        </section>
+
+        <section id="sec-debtors" class="sys-section">
+          <div class="sys-panel"><div id="debtorsTable"></div></div>
+        </section>
+
+        <section id="sec-creditors" class="sys-section">
+          <div class="sys-panel"><div id="creditorsTable"></div></div>
+        </section>
+
+        <section id="sec-budget" class="sys-section">
+          <div class="sys-section-head">
+            <input id="budgetMonth" class="sys-input" type="month" />
+            <button type="button" id="btnSetBudget" class="sys-btn primary">＋ Set Budget</button>
+          </div>
+          <div class="sys-panel"><div id="budgetTable"></div></div>
+          <div class="sys-panel">
+            <h3>Budget vs Spending</h3>
+            <canvas id="budgetChart" class="sys-chart"></canvas>
+          </div>
+        </section>
+
+        <section id="sec-reports" class="sys-section">
+          <div class="sys-section-head">
+            <input id="reportMonth" class="sys-input" type="month" />
+            <button type="button" id="btnPrintStatement" class="sys-btn primary">Print Monthly Statement</button>
+            <button type="button" id="btnPrintJournal" class="sys-btn ghost">Print Journal</button>
+            <button type="button" id="btnPrintBalance" class="sys-btn ghost">Print Balance Sheet</button>
+          </div>
+          <div class="sys-cards" id="reportSummary"></div>
+          <div class="sys-panel">
+            <h3>6-Month Trend (Income vs Expenses)</h3>
+            <canvas id="trendChart" class="sys-chart"></canvas>
+          </div>
+          <div class="sys-panel">
+            <h3>Journal Entries (running balance)</h3>
+            <div id="journalTable"></div>
+          </div>
+        </section>
+
+        <section id="sec-settings" class="sys-section">
+          <div class="sys-panel">
+            <h3>Letterhead &amp; Firm Settings</h3>
+            <p class="sys-hint">These details appear on receipts, invoices, client update letters and reports.</p>
+            <form id="settingsForm" class="sys-form">
+              <div class="sys-grid">
+                <label class="sys-field"><span>Firm Name</span><input id="settingsFirmName" type="text" /></label>
+                <label class="sys-field"><span>Tagline</span><input id="settingsTagline" type="text" placeholder="Advocates • Commissioners for Oaths" /></label>
+                <label class="sys-field"><span>Phone</span><input id="settingsPhone" type="tel" /></label>
+                <label class="sys-field"><span>Email</span><input id="settingsEmail" type="email" /></label>
+                <label class="sys-field full"><span>Office Address</span><input id="settingsAddress" type="text" /></label>
+                <label class="sys-field full"><span>Advocate Name (signs letters)</span><input id="settingsAdvocate" type="text" /></label>
+              </div>
+              <button type="submit" class="sys-btn primary">Save Settings</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="modalBackdrop" class="sys-modal-backdrop">
+      <div class="sys-modal">
+        <h3 id="modalTitle">Title</h3>
+        <form id="modalForm">
+          <div id="modalBody" class="sys-grid"></div>
+          <div class="sys-modal-actions">
+            <button type="button" id="modalCancel" class="sys-btn ghost">Cancel</button>
+            <button type="submit" class="sys-btn primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="sysToast" class="sys-toast" role="status"></div>
+    <div id="printArea"></div>
+
+    <script src="supabase-config.js?v=2"></script>
+    <script src="system-data.js"></script>
+    <script src="system-ui.js"></script>
+    <script src="system-finance.js"></script>
+  </body>
+</html>

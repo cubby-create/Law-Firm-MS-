@@ -153,7 +153,7 @@
         const { data } = await supabaseClient.auth.getSession();
 
         if (data?.session) {
-          window.location.href = 'dashboard.html';
+          window.location.href = 'system.html';
           return true;
         }
 
@@ -287,7 +287,7 @@
             ? 'Your free 3-day trial account has been created successfully.'
             : 'Account created successfully.');
           signUpForm.reset();
-          window.location.href = 'dashboard.html';
+          window.location.href = 'system.html';
           return;
         }
 
@@ -331,7 +331,7 @@
 
         alert('Signed in successfully.');
         signInForm.reset();
-        window.location.href = 'dashboard.html';
+        window.location.href = 'system.html';
       });
     </script>
   </body>

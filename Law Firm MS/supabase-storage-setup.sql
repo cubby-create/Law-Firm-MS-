@@ -91,3 +91,132 @@ create trigger profiles_updated_at
 before update on public.profiles
 for each row
 execute function public.handle_updated_at();
+
+-- =============================================
+-- Management system tables (per-firm, user-scoped).
+-- Every row carries user_id and is protected by RLS,
+-- so different firms' data never collides.
+-- =============================================
+
+create table if not exists public.clients (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  phone text,
+  email text,
+  id_number text,
+  address text,
+  company text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.case_files (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  file_number text not null,
+  practice_area text,
+  client_id uuid references public.clients(id) on delete set null,
+  title text,
+  open_date date,
+  close_date date,
+  status text default 'Open',
+  outcome text,
+  court_case_number text,
+  judge text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.court_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  case_id uuid references public.case_files(id) on delete cascade,
+  session_date date,
+  time_in text,
+  time_out text,
+  hours numeric,
+  court_name text,
+  judge text,
+  matter_type text,
+  outcome text,
+  notes text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.income (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date,
+  currency text default 'KES',
+  amount numeric not null default 0,
+  source text,
+  client_id uuid references public.clients(id) on delete set null,
+  case_id uuid references public.case_files(id) on delete set null,
+  reference text,
+  is_credit boolean default false,
+  invoice_id uuid,
+  receipt_no text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.expenses (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date,
+  category text,
+  payee text,
+  reason text,
+  items text,
+  amount numeric not null default 0,
+  currency text default 'KES',
+  is_debt boolean default false,
+  paid_amount numeric default 0,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.invoices (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  invoice_number text,
+  date date,
+  client_id uuid references public.clients(id) on delete set null,
+  case_id uuid references public.case_files(id) on delete set null,
+  lines jsonb default '[]'::jsonb,
+  total numeric default 0,
+  status text default 'Unpaid',
+  created_at timestamptz default now()
+);
+
+create table if not exists public.budgets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  month text,
+  category text,
+  amount numeric not null default 0,
+  created_at timestamptz default now()
+);
+
+alter table public.clients enable row level security;
+alter table public.case_files enable row level security;
+alter table public.court_sessions enable row level security;
+alter table public.income enable row level security;
+alter table public.expenses enable row level security;
+alter table public.invoices enable row level security;
+alter table public.budgets enable row level security;
+
+-- Row level security: each firm only ever sees its own rows
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['clients','case_files','court_sessions','income','expenses','invoices','budgets']
+  loop
+    execute format('drop policy if exists "own row select" on public.%I', t);
+    execute format('drop policy if exists "own row insert" on public.%I', t);
+    execute format('drop policy if exists "own row update" on public.%I', t);
+    execute format('drop policy if exists "own row delete" on public.%I', t);
+    execute format('create policy "own row select" on public.%I for select using (auth.uid() = user_id)', t);
+    execute format('create policy "own row insert" on public.%I for insert with check (auth.uid() = user_id)', t);
+    execute format('create policy "own row update" on public.%I for update using (auth.uid() = user_id) with check (auth.uid() = user_id)', t);
+    execute format('create policy "own row delete" on public.%I for delete using (auth.uid() = user_id)', t);
+  end loop;
+end $$;
